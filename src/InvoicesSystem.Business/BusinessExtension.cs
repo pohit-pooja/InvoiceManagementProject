@@ -10,7 +10,6 @@ namespace InvoicesSystem
 	{
 		public static IServiceCollection RegisterRepositories(this IServiceCollection services) {
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
-
             return services;
 		}
 

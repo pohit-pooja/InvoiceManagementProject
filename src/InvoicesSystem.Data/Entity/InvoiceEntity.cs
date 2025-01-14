@@ -6,6 +6,6 @@
         public decimal Amount { get; set; }
         public decimal PaidAmount { get; set; }
         public DateOnly DueDate { get; set; }
-        public string Status { get; set; } = "pending";
+        public int Status { get; set; }
     }
 }

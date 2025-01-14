@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using InvoicesSystem.Business.Enums;
 using InvoicesSystem.Data.Entity;
 using InvoicesSystem.Data.Repository.Interface;
 using InvoiceSystem.Models;
@@ -42,7 +43,7 @@ namespace InvoiceSystem.Services
 
             var invoiceEntity = await invoiceRepository.GetInvoiceByIdAsync(id);
 
-            if (invoiceEntity == null || invoiceEntity.Status != "pending")
+            if (invoiceEntity == null || invoiceEntity.Status != (int)InvoiceStatus.Pending)
                 throw new Exception("Invoice not found or not payable.");
             if (amount > invoiceEntity.Amount)
                 throw new ArgumentException("Payment amount exceeds the outstanding invoice amount.", nameof(amount));
@@ -52,7 +53,7 @@ namespace InvoiceSystem.Services
 
             if (invoiceEntity.Amount == 0)
             {
-                invoiceEntity.Status = "Paid";
+                invoiceEntity.Status = (int)InvoiceStatus.Paid;
             }
             await invoiceRepository.ProcessPaymentAsync(invoiceEntity);
         }
@@ -64,17 +65,17 @@ namespace InvoiceSystem.Services
             if (lateFee < 0)
                 throw new ArgumentException("lateFee can not be less than 0.", nameof(lateFee));
 
-            var overdueInvoices = await invoiceRepository.GetOverdueInvoicesAsync(overdueDays, lateFee);
+            var overdueInvoices = await invoiceRepository.GetOverdueInvoicesAsync(overdueDays);
             
             foreach (var invoice in overdueInvoices)
             {
                 if (invoice.PaidAmount > 0)
                 {
-                    invoice.Status = "paid";
+                    invoice.Status = (int)InvoiceStatus.Paid;
                 }
                 else
                 {
-                    invoice.Status = "void";
+                    invoice.Status = (int)InvoiceStatus.Void;
                 }
 
                 var newInvoice = new Invoices

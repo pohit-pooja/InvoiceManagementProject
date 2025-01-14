@@ -1,6 +1,7 @@
 ﻿using InvoicesSystem.Data.Entity;
 using InvoicesSystem.Data.Repository.Interface;
 using InvoiceSystem.Data;
+using InvoicesSystem.Business.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace InvoicesSystem.Data.Repository
@@ -33,11 +34,11 @@ namespace InvoicesSystem.Data.Repository
             _context.Invoice.Update(invoiceEntity);
             await _context.SaveChangesAsync();
         }        
-        public async Task<List<InvoiceEntity>> GetOverdueInvoicesAsync(int overdueDays, decimal lateFee)
+        public async Task<List<InvoiceEntity>> GetOverdueInvoicesAsync(int overdueDays)
         {
             var now = DateOnly.FromDateTime(DateTime.UtcNow);
             var invoiceEntity = await _context.Invoice
-            .Where(i => i.Status == "pending" && i.DueDate < now)
+            .Where(i => i.Status == (int)InvoiceStatus.Pending && i.DueDate < now)
             .ToListAsync();
             return invoiceEntity;
         }
@@ -47,7 +48,6 @@ namespace InvoicesSystem.Data.Repository
             try
             {
                 _context.Invoice.Update(invoice);
-                await _context.SaveChangesAsync();
 
                 await _context.Invoice.AddAsync(newInvoiceEntity);
                 await _context.SaveChangesAsync();

@@ -22,9 +22,15 @@ namespace InvoiceSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateInvoice([FromBody] InvoiceRequestDto invoiceRequestDto)
         {
-            var invoice = mapper.Map<Invoices>(invoiceRequestDto);
-            var createdInvoice = await _invoiceService.CreateInvoice(invoice);
-            return CreatedAtAction(nameof(GetInvoices), new { id = createdInvoice.Id.ToString() }, new { id = createdInvoice.Id.ToString() });
+            try
+            {
+                var invoice = mapper.Map<Invoices>(invoiceRequestDto);
+                var createdInvoice = await _invoiceService.CreateInvoice(invoice);
+                return CreatedAtAction(nameof(GetInvoices), new { id = createdInvoice.Id.ToString() }, new { id = createdInvoice.Id.ToString() });
+            } catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet]
@@ -39,11 +45,11 @@ namespace InvoiceSystem.Controllers
         }
 
         [HttpPost("{id}/payments")]
-        public async Task<IActionResult> PayInvoice(int id, [FromBody] decimal amount)
+        public async Task<IActionResult> PayInvoice(int id, PaymentDto paymentDto)
         {
             try
             {
-                await _invoiceService.ProcessPayment(id, amount);
+                await _invoiceService.ProcessPayment(id, paymentDto.Amount);
                 return Ok();
             }
             catch (Exception ex)
